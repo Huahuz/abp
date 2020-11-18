@@ -1,4 +1,5 @@
-# Web Application Development Tutorial - Part 5: Authorization
+# Web应用程序开发教程  - 第五章: 授权
+
 ````json
 //[doc-params]
 {
@@ -6,29 +7,30 @@
     "DB": ["EF","Mongo"]
 }
 ````
-## About This Tutorial
 
-In this tutorial series, you will build an ABP based web application named `Acme.BookStore`. This application is used to manage a list of books and their authors. It is developed using the following technologies:
+## 关于本教程
 
-* **{{DB_Value}}** as the ORM provider. 
-* **{{UI_Value}}** as the UI Framework.
+在本系列教程中,你将要建立一个名为`Acme.BookStore`的基于abp的应用程序，这个程序用于管理一系列图书以及它们的作者。开发它使用了以下技术：
 
-This tutorial is organized as the following parts;
+* **{{DB_Value}}** 作为对象关系映射提供程序. 
+* **{{UI_Value}}** 作为UI框架.
 
-- [Part 1: Creating the server side](Part-1.md)
-- [Part 2: The book list page](Part-2.md)
-- [Part 3: Creating, updating and deleting books](Part-3.md)
-- [Part 4: Integration tests](Part-4.md)
-- **Part 5: Authorization (this part)**
-- [Part 6: Authors: Domain layer](Part-6.md)
-- [Part 7: Authors: Database Integration](Part-7.md)
-- [Part 8: Authors: Application Layer](Part-8.md)
-- [Part 9: Authors: User Interface](Part-9.md)
-- [Part 10: Book to Author Relation](Part-10.md)
+本教程分为以下几个部分;
 
-### Download the Source Code
+- [Part 1: 创建服务端](Part-1.md)
+- [Part 2: 图书列表页面](Part-2.md)
+- [Part 3: 创建,更新和删除图书](Part-3.md)
+- [Part 4: 集成测试](Part-4.md)
+- **Part 5: 授权 (本章)**
+- [Part 6: 作者: 领域层](Part-6.md)
+- [Part 7: 作者: 数据库集成](Part-7.md)
+- [Part 8: 作者: 应用服务层](Part-8.md)
+- [Part 9: 作者: 用户页面](Part-9.md)
+- [Part 10: 图书到作者的关系](Part-10.md)
 
-This tutorial has multiple versions based on your **UI** and **Database** preferences. We've prepared a few combinations of the source code to be downloaded:
+### 下载源码
+
+本教程根据你的 **UI** 和 **Database** 偏好有多个版,我们准备了两种可供下载的源码组合:
 
 * [MVC (Razor Pages) UI with EF Core](https://github.com/abpframework/abp-samples/tree/master/BookStore-Mvc-EfCore)
 * [Blazor UI with EF Core](https://github.com/abpframework/abp-samples/tree/master/BookStore-Blazor-EfCore)
@@ -36,21 +38,21 @@ This tutorial has multiple versions based on your **UI** and **Database** prefer
 
 {{if UI == "MVC" && DB == "EF"}}
 
-### Video Tutorial
+### 视频教程
 
-This part is also recorded as a video tutorial and **<a href="https://www.youtube.com/watch?v=1WsfMITN_Jk&list=PLsNclT2aHJcPNaCf7Io3DbMN6yAk_DgWJ&index=5" target="_blank">published on YouTube</a>**.
+本章也被录制成视频 **<a href="https://www.youtube.com/watch?v=1WsfMITN_Jk&list=PLsNclT2aHJcPNaCf7Io3DbMN6yAk_DgWJ&index=5" target="_blank">并上传到了YouTube </a>**.
 
 {{end}}
 
-## Permissions
+## 权限
 
-ABP Framework provides an [authorization system](../Authorization.md) based on the ASP.NET Core's [authorization infrastructure](https://docs.microsoft.com/en-us/aspnet/core/security/authorization/introduction). One major feature added on top of the standard authorization infrastructure is the **permission system** which allows to define permissions and enable/disable per role, user or client.
+ABP 框架提供了一个 [authorization system](../Authorization.md) 基于 ASP.NET Core的 [authorization infrastructure](https://docs.microsoft.com/en-us/aspnet/core/security/authorization/introduction)。在标准授权基础设施之上添加的一个主要特性是 **permission system** ，它允许为每一个角色、用户和客户端定义权限并启用和停用它们。
 
-### Permission Names
+### 权限名称
 
-A permission must have a unique name (a `string`). The best way is to define it as a `const`, so we can reuse the permission name.
+一个权限必须拥有一个唯一的名称 ( `字符串`). 最好的方法是把它定义成一个 `const`常量, 这样方便我们重用这些名称。
 
-Open the `BookStorePermissions` class inside the `Acme.BookStore.Application.Contracts` project (in the `Permissions` folder) and change the content as shown below:
+打开`Acme.BookStore.Application.Contracts`项目（在 `Permissions` 文件夹中）下的 `BookStorePermissions` 类并如下改变其内容：
 
 ````csharp
 namespace Acme.BookStore.Permissions
@@ -70,13 +72,13 @@ namespace Acme.BookStore.Permissions
 }
 ````
 
-This is a hierarchical way of defining permission names. For example, "create book" permission name was defined as `BookStore.Books.Create`.
+这是一种分层定义权限名称的方式。例如， 权限名称"create book" 被定义成 `BookStore.Books.Create`.
 
-### Permission Definitions
+### 权限定义
 
-You should define permissions before using them.
+你需要在使用权限之前定义它们。
 
-Open the `BookStorePermissionDefinitionProvider` class inside the `Acme.BookStore.Application.Contracts` project (in the `Permissions` folder) and change the content as shown below:
+打开项目`Acme.BookStore.Application.Contracts`（在`Permissions`文件夹中）下的类并如下替换其实现：
 
 ````csharp
 using Acme.BookStore.Localization;
@@ -105,9 +107,9 @@ namespace Acme.BookStore.Permissions
 }
 ````
 
-This class defines a **permission group** (to group permissions on the UI, will be seen below) and **4 permissions** inside this group. Also, **Create**, **Edit** and **Delete** are children of the `BookStorePermissions.Books.Default` permission. A child permission can be selected **only if the parent was selected**.
+这个类定义了一个**权限组**（用于UI中的权限，下面即将看到），它包含有 **4个权限** 。同时，**Create**, **Edit** 和**Delete** 是`BookStorePermissions.Books.Default`的子权限。子权限只能在父级权限被选择的情况下才能被选择。
 
-Finally, edit the localization file (`en.json` under the `Localization/BookStore` folder of the `Acme.BookStore.Domain.Shared` project) to define the localization keys used above:
+最后，编辑本地化文件（`Localization/BookStore`文件夹下的`en.json`）如下定义上面使用到的多语言键：
 
 ````json
 "Permission:BookStore": "Book Store",
@@ -117,27 +119,27 @@ Finally, edit the localization file (`en.json` under the `Localization/BookStore
 "Permission:Books.Delete": "Deleting the books"
 ````
 
-> Localization key names are arbitrary and no forcing rule. But we prefer the convention used above.
+> 本地化键名是任意的，没有强制规则。但我们更喜欢像上面一样按惯例使用。
 
-### Permission Management UI
+### 权限管理 UI
 
-Once you define the permissions, you can see them on the **permission management modal**.
+一旦是定义了权限，你就可以在**permission management modal**中看到它们。
 
-Go to the *Administration -> Identity -> Roles* page, select *Permissions* action for the admin role to open the permission management modal:
+打开 *管理 -> 身份 -> 角色* 页面, 选择管理员权限的*权限* 操作来打开权限管理modal：
 
 ![bookstore-permissions-ui](images/bookstore-permissions-ui.png)
 
-Grant the permissions you want and save the modal.
+授予你想要的权限并保存modal.
 
-> **Tip**: New permissions are automatically granted to the admin role if you run the `Acme.BookStore.DbMigrator` application.
+> **提示**: 当你执行`Acme.BookStore.DbMigrator`应用，新的权限会自动赋予管理员角色。
 
-## Authorization
+## 授权
 
-Now, you can use the permissions to authorize the book management.
+现在, 你可以使用这些权限来授权这个图书管理。
 
-### Application Layer & HTTP API
+### 应用层 & HTTP API
 
-Open the `BookAppService` class and add set the policy names as the permission names defined above:
+打开 `BookAppService` 类并如下设置权限名称来添加和设置策略名：
 
 ````csharp
 using System;
@@ -170,17 +172,17 @@ namespace Acme.BookStore.Books
 }
 ````
 
-Added code to the constructor. Base `CrudAppService` automatically uses these permissions on the CRUD operations. This makes the **application service** secure, but also makes the **HTTP API** secure since this service is automatically used as an HTTP API as explained before (see [auto API controllers](../API/Auto-API-Controllers.md)).
+向构造函数中添加代码。基于`CrudAppService` 自动在增删改查操作中使用这些权限。因此，正如前面解释的那样，这不仅保证了 **应用服务** 的安全，还保证了**TTP API** 的安全(参看[auto API controllers](../API/Auto-API-Controllers.md))。.
 
-> You will see the declarative authorization, using the `[Authorize(...)]` attribute, later while developing the author management functionality.
+> 稍后在开发作者管理功能时你将会看到使用`[Authorize(...)]`属性来声明授权。
 
 {{if UI == "MVC"}}
 
-### Razor Page
+### Razor 页面
 
-While securing the HTTP API & the application service prevents unauthorized users to use the services, they can still navigate to the book management page. While they will get authorization exception when the page makes the first AJAX call to the server, we should also authorize the page for a better user experience and security.
+在保护API和应用服务的同时，仍然允许他们访问图书管理页面。虽然当页面对服务器进行第一次AJAX调用时，它们将获得授权异常，但我们还应该对页面进行授权，以获得更好的用户体验和安全性 。
 
-Open the `BookStoreWebModule` and add the following code block inside the `ConfigureServices` method:
+打开 `BookStoreWebModule` 并添加如下代码到方法 `ConfigureServices` 中:
 
 ````csharp
 Configure<RazorPagesOptions>(options =>
@@ -191,15 +193,15 @@ Configure<RazorPagesOptions>(options =>
 });
 ````
 
-Now, unauthorized users are redirected to the **login page**.
+现在，未授权的用户将会被重定向至 **登录页面**。
 
-#### Hide the New Book Button
+#### 隐藏新建图书按钮
 
-The book management page has a *New Book* button that should be invisible if the current user has no *Book Creation* permission.
+如果当前用户没有新建图书权限，那么图书管理页面就会隐藏那个*新建书籍* 的按钮。
 
 ![bookstore-new-book-button-small](images/bookstore-new-book-button-small.png)
 
-Open the `Pages/Books/Index.cshtml` file and change the content as shown below:
+打开 `Pages/Books/Index.cshtml` 并如下修改其内容：
 
 ````html
 @page
@@ -239,18 +241,18 @@ Open the `Pages/Books/Index.cshtml` file and change the content as shown below:
 </abp-card>
 ````
 
-* Added `@inject IAuthorizationService AuthorizationService` to access to the authorization service.
-* Used `@if (await AuthorizationService.IsGrantedAsync(BookStorePermissions.Books.Create))` to check the book creation permission to conditionally render the *New Book* button.
+* 添加 `@inject IAuthorizationService AuthorizationService` 来访问授权服务。
+* 使用`@if (await AuthorizationService.IsGrantedAsync(BookStorePermissions.Books.Create))` 来检查新建图书权限并根据情况渲染 *新建图书* 按钮。
 
-### JavaScript Side
+### JavaScript 方面
 
-Books table in the book management page has an actions button for each row. The actions button includes *Edit* and *Delete* actions:
+在图书管理页面的图书表格的每一行都有一个按钮，这些按钮包含 *编辑* 和*删除* 功能：
 
 ![bookstore-edit-delete-actions](images/bookstore-edit-delete-actions.png)
 
-We should hide an action if the current user has not granted for the related permission. Datatables row actions has a `visible` option that can be set to `false` to hide the action item.
+如果当前用户没有相关权限的时候我们应该隐藏那个功能。表格行操作有一个 `visible`选项，当它被设置为`false`的时候就可以隐藏该行的功能。
 
-Open the `Pages/Books/Index.js` inside the `Acme.BookStore.Web` project and add a `visible` option to the `Edit` action as shown below:
+打开`Acme.BookStore.Web`项目中的 `Pages/Books/Index.js` 文件并如下在`Edit`功能中添加一个`visible`选项：
 
 ````js
 {
@@ -262,20 +264,20 @@ Open the `Pages/Books/Index.js` inside the `Acme.BookStore.Web` project and add 
 }
 ````
 
-Do same for the `Delete` action:
+我们在 `Delete` 功能中做同样的操作:
 
 ````js
 visible: abp.auth.isGranted('BookStore.Books.Delete')
 ````
 
-* `abp.auth.isGranted(...)` is used to check a permission that is defined before.
-* `visible` could also be get a function that returns a `bool` if the value will be calculated later, based on some conditions.
+* `abp.auth.isGranted(...)` 是用于检查一个权限是否已经被定义。
+* `visible` 也可以根据情况从一个返回`bool`的方法中计算获得。
 
-### Menu Item
+### 菜单条目
 
-Even we have secured all the layers of the book management page, it is still visible on the main menu of the application. We should hide the menu item if the current user has no permission.
+虽然我们已经保护了图书管理页面的所有层，但是我们还是应该让它们可以通过菜单可以被访问。如果当前用户没有没有权限的时候，它们就应该被隐藏。
 
-Open the `BookStoreMenuContributor` class, find the code block below:
+打开 `BookStoreMenuContributor` 类，找到如下代码： 
 
 ````csharp
 context.Menu.AddItem(
@@ -293,7 +295,7 @@ context.Menu.AddItem(
 );
 ````
 
-And replace this code block with the following:
+并替换成以下内容：
 
 ````csharp
 var bookStoreMenu = new ApplicationMenuItem(
@@ -315,7 +317,7 @@ if (await context.IsGrantedAsync(BookStorePermissions.Books.Default))
 }
 ````
 
-You also need to add `async` keyword to the `ConfigureMenuAsync` method and re-arrange the return values. The final `BookStoreMenuContributor` class should be the following:
+你也需要添加`async`关键字到`ConfigureMenuAsync`方法前面，然后重新排列返回值。最终`BookStoreMenuContributor`类内容如下：
 
 ````csharp
 using System.Threading.Tasks;
@@ -375,11 +377,11 @@ namespace Acme.BookStore.Web.Menus
 
 {{else if UI == "NG"}}
 
-### Angular Guard Configuration
+### Angular 指导配置
 
-First step of the UI is to prevent unauthorized users to see the "Books" menu item and enter to the book management page.
+UI的第一步是防止未授权的用户看到名为"图书"的菜单条目并通过它进入图书管理页面。
 
-Open the `/src/app/book/book-routing.module.ts` and replace with the following content:
+打开 `/src/app/book/book-routing.module.ts` 并如下替换其内容:
 
 ````js
 import { NgModule } from '@angular/core';
@@ -398,10 +400,10 @@ const routes: Routes = [
 export class BookRoutingModule {}
 ````
 
-* Imported `AuthGuard` and `PermissionGuard` from the `@abp/ng.core`.
-* Added `canActivate: [AuthGuard, PermissionGuard]` to the route definition.
+* 从`@abp/ng.core`中导入`AuthGuard` 和`PermissionGuard`。
+* 添加 `canActivate: [AuthGuard, PermissionGuard]`到路由定义。
 
-Open the `/src/app/route.provider.ts` and add `requiredPolicy: 'BookStore.Books'` to the `/books` route. The `/books` route block should be following:
+打开 `/src/app/route.provider.ts` 并添加 `requiredPolicy: 'BookStore.Books'` 到 `/books` 路由.  `/books` 路由模块应当如下：
 
 ````js
 {
@@ -413,13 +415,13 @@ Open the `/src/app/route.provider.ts` and add `requiredPolicy: 'BookStore.Books'
 }
 ````
 
-### Hide the New Book Button
+### 隐藏新建图书按钮
 
-The book management page has a *New Book* button that should be invisible if the current user has no *Book Creation* permission.
+在图书管理页面， 如果当前用户没有没有新建图书的权限，那么*新建图书* 按钮就不能被该用户访问 。
 
 ![bookstore-new-book-button-small](images/bookstore-new-book-button-small.png)
 
-Open the `/src/app/book/book.component.html` file and replace the create button HTML content as shown below:
+打开 `/src/app/book/book.component.html` 文件并如下替换按钮的HTML内容：
 
 ````html
 <!-- Add the abpPermission directive -->
@@ -429,17 +431,17 @@ Open the `/src/app/book/book.component.html` file and replace the create button 
 </button>
 ````
 
-* Just added `abpPermission="BookStore.Books.Create"` that hides the button if the current user has no permission.
+* 如果当前用户没有权限，只需要添加 `abpPermission="BookStore.Books.Create"` 来隐藏这个按钮。
 
-### Hide the Edit and Delete Actions
+### 隐藏编辑和删除功能
 
-Books table in the book management page has an actions button for each row. The actions button includes *Edit* and *Delete* actions:
+图书管理页面的图书表格的每一行都有一个按钮，这个按钮包含编辑和删除功能：
 
 ![bookstore-edit-delete-actions](images/bookstore-edit-delete-actions.png)
 
-We should hide an action if the current user has not granted for the related permission.
+ 如果当前用户没有相关的权限，我们就应该隐藏这些功能。
 
-Open the `/src/app/book/book.component.html` file and replace the edit and delete buttons contents as shown below:
+打开 `/src/app/book/book.component.html` 文件并如下替换编辑和删除按钮的HTML内容：
 
 ````html
 <!-- Add the abpPermission directive -->
@@ -453,14 +455,14 @@ Open the `/src/app/book/book.component.html` file and replace the edit and delet
 </button>
 ````
 
-* Added `abpPermission="BookStore.Books.Edit"` that hides the edit action if the current user has no editing permission.
-* Added `abpPermission="BookStore.Books.Delete"` that hides the delete action if the current user has no delete permission.
+* 添加 `abpPermission="BookStore.Books.Edit"` 之后，如果当前用户没有编辑权限就隐藏编辑按钮。
+* 添加`abpPermission="BookStore.Books.Delete"` 之后，如果当前用户没有删除权限就隐藏删除按钮。
 
 {{else if UI == "Blazor"}}
 
-### Authorize the Razor Component
+### 授权Razor组件
 
-Open the `/Pages/Books.razor` file in the `Acme.BookStore.Blazor` project and add an `Authorize` attribute just after the `@page` directive and the following namespace imports (`@using` lines), as shown below:
+打开`Acme.BookStore.Blazor`项目中的 `/Pages/Books.razor` 文件，如下在`@page`命令之后添加`Authorize` 特性和以下命名空间（`@using`开始的行）：
 
 ````html
 @page "/books"
@@ -470,15 +472,15 @@ Open the `/Pages/Books.razor` file in the `Acme.BookStore.Blazor` project and ad
 ...
 ````
 
-Adding this attribute prevents to enter this page if the current hasn't logged in or hasn't granted for the given permission. In case of attempt, the user is redirected to the login page.
+添加这个特性可以组织那些没有登录和没有被授予权限的用户访问这个页面。如果用户尝试访问就会被重定向到登录界面。
 
-### Show/Hide the Actions
+### 展示/隐藏按钮
 
-The book management page has a *New Book* button and *Edit* and *Delete* actions for each book. We should hide these buttons/actions if the current user has not granted for the related permissions.
+图书管理界面有一个*新增图书* 、*编辑图书* 和*删除图书* 的按钮。当前用户没有相关权限的时候我们应该隐藏它们。
 
-#### Get the Permissions On Initialization
+#### 初始化过程中获取权限
 
-Add the following code block to the end of the `Books.razor` file:
+添加如下代码到`Books.razor`中：
 
 ````csharp
 @code
@@ -498,13 +500,13 @@ Add the following code block to the end of the `Books.razor` file:
 }
 ````
 
-We will use these `bool` fields to check the permissions. `AuthorizationService` comes from the base class as an injected property.
+我们将使用这些`bool`字段来检查权限。`AuthorizationService` 是来自基类的注入属性。
 
-> **Blazor Tip**: While adding the C# code into a `@code` block is fine for small code parts, it is suggested to use the code behind approach to develop a more maintainable code base when the code block becomes longer. We will use this approach for the authors part.
+> **Blazor 提示**: 当添加少量的C#代码到`@code`块中是不错的，我们仍然建议当代码更多的时候使用代码隐藏方法来开发更易于维护的代码库。我们即将在作者那一节使用这个方法。
 
-#### Hide the New Book Button
+#### 隐藏新建书籍按钮
 
-Wrap the *New Book* button by an `if` block as shown below:
+如下将*新建书籍* 包在`if`代码块中：
 
 ````xml
 @if (canCreateBook)
@@ -516,9 +518,9 @@ Wrap the *New Book* button by an `if` block as shown below:
 }
 ````
 
-#### Hide the Edit/Delete Actions
+#### 隐藏编辑/删除按钮
 
-As similar to the *New Book* button, we can use `if` blocks to conditionally show/hide the *Edit* and *Delete* actions:
+和*新建图书*按钮一样，我们可以使用`if`代码块来根据情况展示/隐藏 *编辑* 和 *删除* 操作：
 
 ````xml
 @if (canEditBook)
@@ -535,19 +537,19 @@ As similar to the *New Book* button, we can use `if` blocks to conditionally sho
 }
 ````
 
-#### About the Permission Caching
+#### 关于权限缓存
 
-You can run and test the permissions. Remove a book related permission from the admin role to see the related button/action disappears from the UI.
+你可以运行和测试权限，从管理员角色中移除一个图书相关的权限来观察按钮/操作从UI中删除。
 
-**ABP Framework caches the permissions** of the current user in the client side. So, when you change a permission for yourself, you need to manually **refresh the page** to take the effect. If you don't refresh and try to use the prohibited action you get an HTTP 403 (forbidden) response from the server.
+**ABP 框架在客户端缓存当前用户的权限** 。因此，当你自行修改了权限之后，你需要手动**刷新**受影响的页面。如果你没有刷新页面并尝试使用禁止的操作，你将从服务器收到一个 HTTP 403 (forbidden) 的响应。
 
-> Changing a permission for a role or user immediately available on the server side. So, this cache system doesn't cause any security problem.
+> 改变一个角色或用户的权限将在服务器端立即生效，所以缓存系统并不会有任何安全问题。
 
-### Menu Item
+### 菜单项
 
-Even we have secured all the layers of the book management page, it is still visible on the main menu of the application. We should hide the menu item if the current user has no permission.
+虽然我们已经保护了图书管理页面的所有层，但是我们还是应该让它们可以通过菜单可以被访问。如果当前用户没有没有权限的时候，它们就应该被隐藏。
 
-Open the `BookStoreMenuContributor` class in the `Acme.BookStore.Blazor` project, find the code block below:
+打开 `Acme.BookStore.Blazor`项目中的 `BookStoreMenuContributor` 类，并找到如下代码块：
 
 ````csharp
 context.Menu.AddItem(
@@ -565,7 +567,7 @@ context.Menu.AddItem(
 );
 ````
 
-And replace this code block with the following:
+然后替换该代码块中的内容如下:
 
 ````csharp
 var bookStoreMenu = new ApplicationMenuItem(
@@ -587,7 +589,7 @@ if (await context.IsGrantedAsync(BookStorePermissions.Books.Default))
 }
 ````
 
-You also need to add `async` keyword to the `ConfigureMenuAsync` method and re-arrange the return values. The final `BookStoreMenuContributor` class should be the following:
+你也需要添加`async`关键字到`ConfigureMenuAsync`方法前面，然后重新排列返回值。最终`BookStoreMenuContributor`类内容如下：
 
 ````csharp
 using System.Threading.Tasks;
@@ -641,6 +643,7 @@ namespace Acme.BookStore.Blazor
 
 {{end}}
 
-## The Next Part
+## 下一章
 
-See the [next part](Part-6.md) of this tutorial.
+查看本教程的 [下一章](Part-6.md) .
+
